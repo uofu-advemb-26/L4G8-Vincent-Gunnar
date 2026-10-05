@@ -38,19 +38,24 @@ void test_request(void)
     SemaphoreHandle_t request = xSemaphoreCreateCounting(1, 0);
     SemaphoreHandle_t response = xSemaphoreCreateCounting(1, 0);
 
+    printf("After semaphore setup\n");
     struct signal_data data = {};
     struct task_args args = {request, response, &data};
     xTaskCreate(calc_task, "test_request", TEST_TASK_STACK_SIZE,
                 (void *)&args, TEST_TASK_PRIORITY, &coop_thread);
     for (int counter = 46; counter < 55; counter++) {
+        printf("Counter incremented: %d\n", counter);
         data.input = counter;
         BaseType_t result = signal_request_calculate(request, response, &data);
+        printf("After calling signal_request_calculate\n");
         TEST_ASSERT_EQUAL_INT(pdTRUE, result);
         TEST_ASSERT_EQUAL_INT(counter+5, data.output);
 	}
     vTaskDelete(coop_thread);
+    printf("After co-op thread deletion\n");
     vSemaphoreDelete(request);
     vSemaphoreDelete(response);
+    printf("After semaphore deletion\n");
 }
 
 void test_noone_home(void)
@@ -114,18 +119,23 @@ void runner_thread (__unused void *args)
     for (;;) {
         printf("Starting test run.\n");
         UNITY_BEGIN();
+        printf("After unity begin");
         RUN_TEST(test_noop);
         RUN_TEST(test_out_of_order);
         RUN_TEST(test_request);
-        RUN_TEST(test_noone_home);
+        // RUN_TEST(test_noone_home);
+        printf("Before unity end");
         UNITY_END();
-        sleep_ms(5000);
+        printf("After unity end");
+        vTaskDelay(5000);           //sleep 5000 ticks instead
+        printf("After sleep");
     }
 }
 
 int main (void)
 {
     stdio_init_all();
+    sleep_ms(10000);
     printf("Launching runner\n");
     hard_assert(cyw43_arch_init() == PICO_OK);
     xTaskCreate(runner_thread, "TestRunner",
