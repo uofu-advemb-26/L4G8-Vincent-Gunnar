@@ -38,33 +38,36 @@ void test_request(void)
     SemaphoreHandle_t request = xSemaphoreCreateCounting(1, 0);
     SemaphoreHandle_t response = xSemaphoreCreateCounting(1, 0);
 
-    printf("After semaphore setup\n");
+    // printf("After semaphore setup\n");
     struct signal_data data = {};
     struct task_args args = {request, response, &data};
     xTaskCreate(calc_task, "test_request", TEST_TASK_STACK_SIZE,
                 (void *)&args, TEST_TASK_PRIORITY, &coop_thread);
     for (int counter = 46; counter < 55; counter++) {
-        printf("Counter incremented: %d\n", counter);
+        // printf("Counter incremented: %d\n", counter);
         data.input = counter;
         BaseType_t result = signal_request_calculate(request, response, &data);
-        printf("After calling signal_request_calculate\n");
+        // printf("After calling signal_request_calculate\n");
         TEST_ASSERT_EQUAL_INT(pdTRUE, result);
         TEST_ASSERT_EQUAL_INT(counter+5, data.output);
 	}
     vTaskDelete(coop_thread);
-    printf("After co-op thread deletion\n");
+    // printf("After co-op thread deletion\n");
     vSemaphoreDelete(request);
     vSemaphoreDelete(response);
-    printf("After semaphore deletion\n");
+    // printf("After semaphore deletion\n");
 }
 
 void test_noone_home(void)
 {
+    printf("Beginning test noone home\n");
     SemaphoreHandle_t response = xSemaphoreCreateCounting(1, 0);
     SemaphoreHandle_t request = xSemaphoreCreateCounting(1, 0);
     struct signal_data data = {42, 42};
     struct task_args args = {request, response, &data};
+    printf("Just before calculation\n");
     BaseType_t result = signal_request_calculate(request, response, &data);
+    printf("Calculation handled\n");
     TEST_ASSERT_EQUAL_INT(pdFALSE, result);
     TEST_ASSERT_EQUAL_INT(1, uxSemaphoreGetCount(request));
     TEST_ASSERT_EQUAL_INT(0, uxSemaphoreGetCount(response));
@@ -96,6 +99,7 @@ void test_noop(void)
 
 void test_out_of_order(void)
 {
+    // printf("Begin test out of order\n");
     TaskHandle_t coop_thread;
     SemaphoreHandle_t request = xSemaphoreCreateCounting(1, 0);
     SemaphoreHandle_t response = xSemaphoreCreateCounting(1, 0);
@@ -103,6 +107,7 @@ void test_out_of_order(void)
     struct task_args args = {request, response, &data};
     xTaskCreate(calc_task, "test_out_of_order", TEST_TASK_STACK_SIZE,
                 (void *)&args, TEST_TASK_PRIORITY, &coop_thread);
+    // printf("Task created\n");
     xSemaphoreGive(response);
     vTaskDelay(1000);
     TEST_ASSERT_EQUAL_INT(0, uxSemaphoreGetCount(request));
@@ -117,18 +122,18 @@ void test_out_of_order(void)
 void runner_thread (__unused void *args)
 {
     for (;;) {
-        printf("Starting test run.\n");
+        // printf("Starting test run.\n");
         UNITY_BEGIN();
-        printf("After unity begin");
+        // printf("After unity begin");
         RUN_TEST(test_noop);
         RUN_TEST(test_out_of_order);
         RUN_TEST(test_request);
-        // RUN_TEST(test_noone_home);
-        printf("Before unity end");
+        RUN_TEST(test_noone_home);
+        // printf("Before unity end");
         UNITY_END();
-        printf("After unity end");
+        // printf("After unity end");
         vTaskDelay(5000);           //sleep 5000 ticks instead
-        printf("After sleep");
+        // printf("After sleep");
     }
 }
 
