@@ -6,8 +6,8 @@ void signal_handle_calculation(SemaphoreHandle_t request,
 {
     xSemaphoreTake(request, portMAX_DELAY);
     printf("Request accepted, processing data");
+    data->output = data->input + 5;
     printf("Data processing complete");
-    xSemaphoreGive(response);
 }
 
 BaseType_t signal_request_calculate(SemaphoreHandle_t request,
@@ -16,7 +16,7 @@ BaseType_t signal_request_calculate(SemaphoreHandle_t request,
 {
     xSemaphoreGive(request);
     xSemaphoreTake(response, portMAX_DELAY);
-    
-    data->output = data->input + 5;
+
+    signal_handle_calculation(request, response, data);
     return xSemaphoreGive(response);
 }
