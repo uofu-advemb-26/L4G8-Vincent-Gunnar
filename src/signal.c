@@ -1,4 +1,5 @@
 #include "signaling.h"
+#include <stdio.h>
 
 void signal_handle_calculation(SemaphoreHandle_t request,
                                SemaphoreHandle_t response,
@@ -15,8 +16,9 @@ BaseType_t signal_request_calculate(SemaphoreHandle_t request,
     struct signal_data *data)
 {
     xSemaphoreGive(request);
-    xSemaphoreTake(response, portMAX_DELAY);
-    
+    BaseType_t returnData = xSemaphoreTake(response, portMAX_DELAY);
+    printf("\nTest\n");
     data->output = data->input + 5;
-    return xSemaphoreGive(response);
+    // return xSemaphoreGive(response);
+    return returnData;
 }
