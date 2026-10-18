@@ -87,7 +87,9 @@ void test_noop(void)
     xTaskCreate(calc_task, "test_noop", TEST_TASK_STACK_SIZE,
                 (void *)&args, TEST_TASK_PRIORITY, &coop_thread);
     vTaskDelay(1000);
+    printf("Request semaphore\n");
     TEST_ASSERT_EQUAL_INT(0, uxSemaphoreGetCount(request));
+    printf("Response semaphore\n");
     TEST_ASSERT_EQUAL_INT(0, uxSemaphoreGetCount(response));
     TEST_ASSERT_EQUAL_INT(42, data.input);
     TEST_ASSERT_EQUAL_INT(42, data.output);
