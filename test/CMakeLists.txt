@@ -17,8 +17,8 @@ endif()
 
 # Modify the below lines to enable/disable output over UART/USB.
 # These are mutually exclusive, only set one.
-pico_enable_stdio_uart(mytest 0)
-pico_enable_stdio_usb(mytest 1)
+pico_enable_stdio_uart(mytest 1)
+pico_enable_stdio_usb(mytest 0)
 
 # This will speed up the simulation, since data won't be copied from the flash controller.
 # It does make the binary non-persistent on a real microcontroller.
@@ -50,8 +50,8 @@ target_link_libraries(lab4_test_fifo PRIVATE
   pico_cyw43_arch_none
   unity
 )
-pico_enable_stdio_uart(lab4_test_fifo 0)
-pico_enable_stdio_usb(lab4_test_fifo 1)
+pico_enable_stdio_uart(lab4_test_fifo 1)
+pico_enable_stdio_usb(lab4_test_fifo 0)
 add_custom_target(flash_test_
     picotool load -f $<TARGET_FILE:lab4_test_fifo> DEPENDS lab4_test_fifo)
 
@@ -64,8 +64,8 @@ target_link_libraries(lab4_test_signal PRIVATE
   pico_cyw43_arch_none
   unity
 )
-pico_enable_stdio_uart(lab4_test_signal 0)
-pico_enable_stdio_usb(lab4_test_signal 1)
+pico_enable_stdio_uart(lab4_test_signal 1)
+pico_enable_stdio_usb(lab4_test_signal 0)
 add_custom_target(flash_test_signal
     picotool load -f $<TARGET_FILE:lab4_test_signal> DEPENDS lab4_test_signal)
 
